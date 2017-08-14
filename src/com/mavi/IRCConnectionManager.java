@@ -23,7 +23,10 @@ public class IRCConnectionManager {
 	private IRCConnection connection;
 	private CustomIrcEventListener listener;
 
-	public void IRCConectionManager() {
+	private WebirssiUI ui;
+
+	public IRCConnectionManager(WebirssiUI ui) {
+		this.ui = ui;
 		readProperties();
 	}
 
@@ -36,8 +39,7 @@ public class IRCConnectionManager {
 
 	private void readProperties() {
 		try {
-			InputStream inputStream = VaadinServlet.getCurrent()
-					.getServletContext()
+			InputStream inputStream = VaadinServlet.getCurrent().getServletContext()
 					.getResourceAsStream("/WEB-INF/irc.properties");
 			Properties properties = new Properties();
 			properties.load(inputStream);
@@ -56,10 +58,9 @@ public class IRCConnectionManager {
 	}
 
 	private void createConnection() {
-		listener = new CustomIrcEventListener(nick);
+		listener = new CustomIrcEventListener(ui, nick);
 
-		connection = new IRCConnection(host, new int[] { port }, pass, nick,
-				user, name);
+		connection = new IRCConnection(host, new int[] { port }, pass, nick, user, name);
 		connection.addIRCEventListener(listener);
 		connection.setEncoding("UTF-8");
 		connection.setPong(true);
@@ -85,12 +86,16 @@ public class IRCConnectionManager {
 		// TODO: set to connection
 	}
 
-	public List<IRCMessage> getMessages() {
-		return listener.getMessages();
+	public List<IRCMessage> getMessages(String chan) {
+		return listener.getMessages(chan);
 	}
 
 	public List<String> getNicks() {
-		return listener.getNicsk();
+		return listener.getNicks();
+	}
+
+	public List<String> getInfos() {
+		return listener.getInfos();
 	}
 
 	public void doMessage(String message) {

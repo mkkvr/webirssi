@@ -2,7 +2,9 @@ package com.mavi;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.schwering.irc.lib.IRCEventListener;
@@ -12,14 +14,18 @@ import org.schwering.irc.lib.IRCUtil;
 
 public class CustomIrcEventListener implements IRCEventListener {
 
-	private List<IRCMessage> messages;
+	private Map<String, List<IRCMessage>> messages;
+	private List<String> infos;
 	private List<String> nicks;
 
 	private String nick;
+	private WebirssiUI ui;
 
-	public CustomIrcEventListener(String nick) {
-		messages = new ArrayList<IRCMessage>();
+	public CustomIrcEventListener(WebirssiUI ui, String nick) {
+		this.ui = ui;
+		messages = new HashMap<>();
 		nicks = new ArrayList<String>();
+		infos = new ArrayList<>();
 		this.nick = nick;
 	}
 
@@ -28,15 +34,36 @@ public class CustomIrcEventListener implements IRCEventListener {
 	 */
 	public void addMessage(String chan, String user, String msg) {
 		boolean personal = nick.equalsIgnoreCase(chan);
-		messages.add(new IRCMessage(user, msg, new Date(), personal));
+		// TODO: if personal, use sender as channel!
+		List<IRCMessage> list = messages.get(chan);
+		if (list == null) {
+			list = new ArrayList<>();
+			messages.put(chan, list);
+			addNewChannel(chan);
+		}
+		list.add(new IRCMessage(user, msg, new Date(), personal));
 	}
 
-	public List<IRCMessage> getMessages() {
-		return messages;
+	private void addNewChannel(String chan) {
+		ui.addChannelTab(chan);
 	}
 
-	public List<String> getNicsk() {
+	public List<IRCMessage> getMessages(String chan) {
+		List<IRCMessage> list = messages.get(chan);
+		if (list == null) {
+			list = new ArrayList<>();
+			messages.put(chan, list);
+		}
+
+		return list;
+	}
+
+	public List<String> getNicks() {
 		return nicks;
+	}
+
+	public List<String> getInfos() {
+		return infos;
 	}
 
 	/**
@@ -44,7 +71,8 @@ public class CustomIrcEventListener implements IRCEventListener {
 	 */
 
 	public void print(String msg) {
-		System.out.println(msg);
+		infos.add(msg);
+		// System.out.println(msg);
 	}
 
 	public void onRegistered() {
