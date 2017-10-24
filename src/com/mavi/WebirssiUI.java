@@ -44,7 +44,7 @@ public class WebirssiUI extends UI {
 	private String nick;
 
 	// temporary
-	ChannelLayout mainLayout;
+	// ChannelLayout mainLayout;
 	InfoLayout infoLayout;
 
 	TabSheet tabSheet;
@@ -90,18 +90,14 @@ public class WebirssiUI extends UI {
 		layout.setSizeFull();
 		setContent(layout);
 
-		// TODO: channel
-		// TODO: actual tabs for real channels
-		mainLayout = new ChannelLayout(connectionManager, "#mavtest");
 		layout.addComponent(buildMenuBar());
+		layout.addComponent(buildToolBar());
 
 		infoLayout = new InfoLayout(connectionManager);
 
 		tabSheet = new TabSheet();
 		tabSheet.addTab(infoLayout, "Info");
-		tabSheet.addTab(mainLayout, "Channel");
 		tabSheet.setHeight("100%");
-		tabSheet.getTab(mainLayout).setClosable(true);
 
 		tabSheet.setCloseHandler(new CloseHandler() {
 			@Override
@@ -112,6 +108,7 @@ public class WebirssiUI extends UI {
 				// We need to close it explicitly in the handler
 				// showConfirmDialog();
 				handleConfirmDialog(tab);
+				// TODO: leave channel on irc
 			}
 		});
 
@@ -127,15 +124,22 @@ public class WebirssiUI extends UI {
 
 	}
 
+	public void addChannel(String channel) {
+		ChannelLayout channelLayout = new ChannelLayout(connectionManager, channel);
+		tabSheet.addTab(channelLayout, channel);
+		tabSheet.getTab(channelLayout).setClosable(true);
+	}
+
 	public void handleConfirmDialog(Tab tab) {
-		ConfirmDialog.show(this, "Please Confirm:", "Are you really sure?", "I am", "Not quite",
+		String channel = tab.getCaption();
+		ConfirmDialog.show(this, "Please Confirm:", "Leave " + channel + ". Are you really sure?", "I am", "Not quite",
 				new ConfirmDialog.Listener() {
 
 					public void onClose(ConfirmDialog dialog) {
 						if (dialog.isConfirmed()) {
 							// Confirmed to continue
-							// TODO: add leaving the channel!
 							tabSheet.removeTab(tab);
+							connectionManager.doPart(channel);
 						}
 					}
 				});
@@ -186,6 +190,15 @@ public class WebirssiUI extends UI {
 
 	}
 
+	private HorizontalLayout buildToolBar() {
+		HorizontalLayout toolbar = new HorizontalLayout();
+		Button connectButton = new Button("Connect");
+		toolbar.addComponent(connectButton);
+		Button addChannelButton = new Button("Add");
+		toolbar.addComponent(addChannelButton);
+		return toolbar;
+	}
+
 	private MenuBar buildMenuBar() {
 
 		MenuBar menuBar = new MenuBar();
@@ -206,6 +219,7 @@ public class WebirssiUI extends UI {
 						.getAttribute("connectionManager");
 				IRCConnection connection = cm.getConnection();
 				connection.close();
+				// TODO: add some info to all channels?
 			}
 		});
 
@@ -291,6 +305,7 @@ public class WebirssiUI extends UI {
 						String channelValue = channelField.getValue();
 
 						boolean validNick = nickValue != null && nickValue.length() > 0;
+						// TODO: # in channel?
 						boolean validChannel = channelValue != null && channelValue.length() > 0;
 
 						if (validNick && validChannel) {
@@ -299,6 +314,7 @@ public class WebirssiUI extends UI {
 							IRCConnection connection = cm.getConnection();
 							connection.connect();
 							connection.doJoin(channelValue);
+							addChannel(channelValue);
 						}
 						close();
 					} catch (IOException e) {

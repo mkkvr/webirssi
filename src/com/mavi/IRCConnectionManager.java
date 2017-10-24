@@ -100,7 +100,12 @@ public class IRCConnectionManager {
 
 	public void doMessage(String message) {
 		connection.doPrivmsg(channel, message);
+		// TODO: recognize command vs. message!
 		listener.addMessage(channel, nick, message);
+	}
+
+	public void doPart(String channel) {
+		connection.doPart(channel);
 	}
 
 	public boolean isReady() {

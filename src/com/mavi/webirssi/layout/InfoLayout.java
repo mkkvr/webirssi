@@ -74,6 +74,7 @@ public class InfoLayout extends VerticalLayout implements TabSheetLayout {
 		button.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
 				String msg = tf.getValue();
+				// TODO: replace with command!
 				sendMessage(msg);
 			}
 		});
