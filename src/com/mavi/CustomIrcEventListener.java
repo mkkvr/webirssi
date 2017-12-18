@@ -35,11 +35,13 @@ public class CustomIrcEventListener implements IRCEventListener {
 	public void addMessage(String chan, String user, String msg) {
 		boolean personal = nick.equalsIgnoreCase(chan);
 		// TODO: if personal, use sender as channel!
-		List<IRCMessage> list = messages.get(chan);
+		// TODO: if message comes when connecting, two channels added!
+		String chanToUse = personal ? user : chan;
+		List<IRCMessage> list = messages.get(chanToUse);
 		if (list == null) {
 			list = new ArrayList<>();
-			messages.put(chan, list);
-			addNewChannel(chan);
+			messages.put(chanToUse, list);
+			addNewChannel(chanToUse);
 		}
 		list.add(new IRCMessage(user, msg, new Date(), personal));
 	}

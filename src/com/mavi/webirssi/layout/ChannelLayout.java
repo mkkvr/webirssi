@@ -116,7 +116,7 @@ public class ChannelLayout extends VerticalLayout implements TabSheetLayout {
 
 	private void sendMessage(String msg) {
 		if (msg != null) {
-			connectionManager.doMessage(msg);
+			connectionManager.doMessage(channel, msg);
 			tf.setValue("");
 		}
 	}

@@ -103,7 +103,9 @@ public class InfoLayout extends VerticalLayout implements TabSheetLayout {
 
 	private void sendMessage(String msg) {
 		if (msg != null) {
-			connectionManager.doMessage(msg);
+			// TODO: do command from channelLayout when command on channel
+			// TODO: do the actual doCommand
+			connectionManager.doCommand(msg);
 			tf.setValue("");
 		}
 	}
